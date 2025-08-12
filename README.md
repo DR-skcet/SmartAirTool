@@ -192,9 +192,6 @@ streamlit run streamlit_app.py --logger.level debug
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
@@ -203,10 +200,6 @@ This project is licensed under the MIT License.
 - **FastAPI** for the robust backend framework
 - **Plotly** for beautiful visualizations
 
-## 📞 Support
 
-For support, please open an issue on GitHub or contact the development team.
 
----
 
-**Happy Flying with DRAir! ✈️**
