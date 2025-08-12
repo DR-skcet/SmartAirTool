@@ -2,7 +2,6 @@
 
 A powerful flight search application built with FastAPI, Streamlit, and the Amadeus API that helps you find the cheapest and shortest flights across multiple dates.
 
-![DRAir Logo](https://cdn-icons-png.flaticon.com/512/2830/2830284.png)
 
 ## 🌟 Features
 
