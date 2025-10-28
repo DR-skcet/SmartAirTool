@@ -10,6 +10,62 @@ import json
 import time
 from typing import Dict, Any
 
+# AI-powered functions for real backend integration
+async def call_anywhere_search_api(budget: int, preferences: Dict[str, Any], api_url: str) -> Dict[str, Any]:
+    """Call the AI-powered anywhere search API"""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{api_url}/anywhere-search",
+                json={
+                    "budget": budget,
+                    "climate": preferences.get("climate"),
+                    "visa_free": preferences.get("visa_free", True),
+                    "safety_importance": preferences.get("safety_importance", 7),
+                    "cost_preference": preferences.get("cost_preference", "Medium"),
+                    "interests": preferences.get("interests", [])
+                }
+            )
+            response.raise_for_status()
+            return response.json()
+    except Exception as e:
+        st.error(f"AI service error: {e}")
+        return None
+
+async def call_ai_chat_api(message: str, conversation_history: list, api_url: str) -> str:
+    """Call the AI chat assistant API"""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{api_url}/chat",
+                json={
+                    "message": message,
+                    "conversation_history": conversation_history
+                }
+            )
+            response.raise_for_status()
+            result = response.json()
+            return result.get("response", "Sorry, I couldn't process that request.")
+    except Exception as e:
+        st.error(f"AI chat error: {e}")
+        return "I'm having trouble connecting to my AI brain right now. Please try again!"
+
+async def get_travel_insights_api(api_url: str, route: str = "global") -> list:
+    """Get AI-generated travel insights"""
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(f"{api_url}/travel-insights?route={route}")
+            response.raise_for_status()
+            result = response.json()
+            return result.get("insights", [])
+    except Exception as e:
+        return [
+            "✈️ Flight prices typically vary by 20-40% based on booking timing",
+            "🌤️ Weather patterns can significantly impact flight schedules",
+            "💰 Tuesday and Wednesday flights are often 15-25% cheaper",
+            "📱 Clear browser cookies between searches to avoid price tracking"
+        ]
+
 # Configure the page
 st.set_page_config(
     page_title="✈️ SmartAir - Smart Flight Search",
@@ -104,8 +160,16 @@ st.markdown("""
 
 # Sidebar configuration
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=100)
-    st.title("🛫 Flight Search")
+    st.markdown(
+        """
+        <div style="padding-left: 85px;">
+            <img src="https://www.freeiconspng.com/uploads/plane-travel-flight-tourism-travel-icon-png-10.png" width="100">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown("<h1 style='padding-left: 40px;'>🛫 Flight Search</h1>", unsafe_allow_html=True)
+    # st.title("🛫 Flight Search")
     st.markdown("---")
     
     # Search parameters
@@ -138,23 +202,381 @@ with st.sidebar:
     st.markdown("### 📊 Quick Stats")
 
 # Main content area
-st.markdown('<h1 class="main-header">✈️ SmartAir - Smart Flight Search Engine</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header">✈️ SmartAir - Next-Gen Travel Intelligence</h1>', unsafe_allow_html=True)
 
-# Popular routes section
-st.markdown("### 🌟 Popular Routes")
-popular_routes = [
-    {"route": "DEL → HYD", "origin": "DEL", "destination": "HYD"},
-    {"route": "BOM → BLR", "origin": "BOM", "destination": "BLR"},
-    {"route": "DEL → BOM", "origin": "DEL", "destination": "BOM"},
-    {"route": "CCU → DEL", "origin": "CCU", "destination": "DEL"},
-]
+# Revolutionary feature tabs
+tab1, tab2, tab3 = st.tabs(["✈️ Flight Search", "🌍 Anywhere Search", "🤖 AI Travel Assistant"])
 
-cols = st.columns(4)
-for i, route in enumerate(popular_routes):
-    with cols[i]:
-        if st.button(route["route"], key=f"route_{i}", use_container_width=True):
-            origin = route["origin"]
-            destination = route["destination"]
+with tab1:
+    # Traditional flight search
+    st.markdown("### 🌟 Popular Routes")
+    popular_routes = [
+        {"route": "DEL → HYD", "origin": "DEL", "destination": "HYD"},
+        {"route": "BOM → BLR", "origin": "BOM", "destination": "BLR"},
+        {"route": "DEL → BOM", "origin": "DEL", "destination": "BOM"},
+        {"route": "CCU → DEL", "origin": "CCU", "destination": "DEL"},
+    ]
+
+    cols = st.columns(4)
+    for i, route in enumerate(popular_routes):
+        with cols[i]:
+            if st.button(route["route"], key=f"route_{i}", use_container_width=True):
+                origin = route["origin"]
+                destination = route["destination"]
+                st.rerun()
+
+with tab2:
+    # Revolutionary Anywhere Search
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+        <h2 style="color: white; text-align: center; margin: 0;">🌍 Anywhere Search</h2>
+        <p style="color: white; text-align: center; font-size: 1.1rem; margin: 0.5rem 0 0 0;">
+            Revolutionary AI-powered destination discovery
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### 💡 What Makes This Revolutionary?")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+            <h4>🧠 AI-Powered Matching</h4>
+            <p>Our AI analyzes your preferences and finds destinations you'll love</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+            <h4>💰 Budget Optimization</h4>
+            <p>Maximize your travel experience within any budget</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+            <h4>🌍 Global Discovery</h4>
+            <p>Discover hidden gems you never knew existed</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Anywhere Search Interface
+    st.markdown("### 🎯 Tell Us Your Preferences")
+    
+    anywhere_col1, anywhere_col2 = st.columns([2, 1])
+    
+    with anywhere_col1:
+        budget = st.slider("💰 Your Total Budget (USD)", 300, 3000, 800, 50)
+        
+        pref_col1, pref_col2 = st.columns(2)
+        with pref_col1:
+            climate = st.selectbox("🌡️ Preferred Climate", 
+                                 ["Any", "Tropical", "Mediterranean", "Temperate", "Desert"])
+            visa_free = st.checkbox("✈️ Visa-free only", True)
+        
+        with pref_col2:
+            safety_score = st.slider("🛡️ Safety Priority (1-10)", 1, 10, 7)
+            cost_living = st.selectbox("💸 Cost Preference", ["Low", "Medium", "High"], 1)
+        
+        interests = st.multiselect("🎨 Your Interests", 
+                                 ["Food", "Culture", "History", "Adventure", "Nature", "Art", 
+                                  "Nightlife", "Beaches", "Architecture"], 
+                                 ["Food", "Culture"])
+    
+    with anywhere_col2:
+        st.markdown("#### 🎯 Your Profile")
+        st.info(f"💰 Budget: ${budget:,}")
+        st.info(f"🌡️ Climate: {climate}")
+        st.info(f"🛡️ Safety: {safety_score}/10")
+        st.info(f"✈️ Visa-free: {'Yes' if visa_free else 'Any'}")
+        st.info(f"🎨 {len(interests)} interests selected")
+    
+    if st.button("🔍 Discover Amazing Destinations", type="primary", use_container_width=True):
+        with st.spinner("🤖 AI is analyzing global destinations..."):
+            try:
+                # Prepare preferences for AI
+                preferences = {
+                    "climate": climate if climate != "Any" else None,
+                    "visa_free": visa_free,
+                    "safety_importance": safety_score,
+                    "cost_preference": cost_living,
+                    "interests": interests
+                }
+                
+                # Call real AI backend
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                ai_result = loop.run_until_complete(
+                    call_anywhere_search_api(budget, preferences, api_base_url)
+                )
+                loop.close()
+                
+                if ai_result and ai_result.get("destinations"):
+                    destinations_data = ai_result["destinations"]
+                    
+                    # Convert to expected format
+                    destinations = []
+                    for dest in destinations_data:
+                        destinations.append({
+                            "city": dest.get("city", "Unknown"),
+                            "country": dest.get("country", "Unknown"),
+                            "cost": dest.get("total_estimated_cost", budget),
+                            "match": dest.get("match_score", 75),
+                            "highlights": dest.get("highlights", []),
+                            "why_recommended": dest.get("why_recommended", ""),
+                            "insider_tip": dest.get("insider_tip", ""),
+                            "best_time": dest.get("best_time", "Year-round")
+                        })
+                else:
+                    # Fallback destinations if AI fails
+                    destinations = [
+                        {"city": "Prague", "country": "Czech Republic", "cost": 650, "match": 92, 
+                         "highlights": ["Architecture", "History", "Culture"],
+                         "why_recommended": "Perfect blend of culture and affordability",
+                         "insider_tip": "Visit during shoulder season for better prices",
+                         "best_time": "April-October"},
+                        {"city": "Lisbon", "country": "Portugal", "cost": 580, "match": 88, 
+                         "highlights": ["Food", "Culture", "Coastline"],
+                         "why_recommended": "Coastal charm with excellent value",
+                         "insider_tip": "Get Lisboa Card for free transport",
+                         "best_time": "March-May, Sept-Nov"},
+                    ]
+                    st.warning("🤖 AI service temporarily unavailable - showing curated recommendations")
+                
+            except Exception as e:
+                st.error(f"Error getting AI recommendations: {e}")
+                destinations = []
+            
+            st.success(f"✨ Found {len(destinations)} perfect matches!")
+            
+            # Results metrics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("💰 Best Deal", f"${min(d['cost'] for d in destinations)}")
+            with col2:
+                st.metric("🎯 Top Match", f"{max(d['match'] for d in destinations)}%")
+            with col3:
+                st.metric("💵 Avg Savings", "$200")
+            with col4:
+                st.metric("🌍 Countries", f"{len(set(d['country'] for d in destinations))}")
+            
+            # Display AI-enhanced results
+            for i, dest in enumerate(destinations):
+                col1, col2 = st.columns([4, 1])
+                
+                with col1:
+                    st.markdown(f"""
+                    <div style="border: 2px solid #28a745; border-radius: 15px; padding: 1.5rem; margin: 1rem 0; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <h4 style="color: black;">{i+1}. {dest['city']}, {dest['country']}</h4>
+                        
+                        <div style="display: flex; justify-content: space-between; margin: 1rem 0;">
+                            <div>
+                                <span style="background: #28a745; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem;">
+                                    🎯 {dest['match']}% AI Match
+                                </span>
+                                <span style="background: #007bff; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; margin-left: 0.5rem; font-size: 0.9rem;">
+                                    💰 ${dest['cost']} Total
+                                </span>
+                                <span style="background: #6f42c1; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; margin-left: 0.5rem; font-size: 0.9rem;">
+                                    📅 {dest.get('best_time', 'Year-round')}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 1rem 0; padding: 0.8rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="color: #495057; margin: 0; font-weight: 500;">
+                                <strong>🎨 Highlights:</strong> {' • '.join(dest['highlights'])}
+                            </p>
+                        </div>
+                        
+                        {f'''<div style="margin: 1rem 0; padding: 0.8rem; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #28a745;">
+                            <p style="color: #155724; margin: 0; font-style: italic;">
+                                <strong>🤖 AI Insight:</strong> {dest.get('why_recommended', 'Great choice for your preferences!')}
+                            </p>
+                        </div>''' if dest.get('why_recommended') else ''}
+                        
+                        {f'''<div style="margin: 1rem 0; padding: 0.8rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <p style="color: #856404; margin: 0;">
+                                <strong>💡 Insider Tip:</strong> {dest.get('insider_tip', 'Book 4-6 weeks in advance for best prices!')}
+                            </p>
+                        </div>''' if dest.get('insider_tip') else ''}
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col2:
+                    if st.button(f"✈️ Book {dest['city']}", key=f"book_{i}", use_container_width=True):
+                        st.success(f"🎉 Redirecting to book {dest['city']}...")
+                    
+                    if st.button(f"ℹ️ More Info", key=f"info_{i}", use_container_width=True):
+                        with st.expander(f"📖 {dest['city']} Details", expanded=True):
+                            st.markdown(f"""
+                            **🌍 Destination:** {dest['city']}, {dest['country']}
+                            **💰 Estimated Cost:** ${dest['cost']}
+                            **🎯 Match Score:** {dest['match']}%
+                            **📅 Best Time:** {dest.get('best_time', 'Year-round')}
+                            **🎨 Main Attractions:** {', '.join(dest['highlights'])}
+                            
+                            {f"**🤖 Why AI Recommends:** {dest.get('why_recommended', 'Perfect for your travel style!')}" if dest.get('why_recommended') else ''}
+                            
+                            {f"**💡 Pro Tip:** {dest.get('insider_tip', 'Book early for best deals!')}" if dest.get('insider_tip') else ''}
+                            """)
+
+with tab3:
+    # AI Travel Assistant
+
+    # --- Modern AI Travel Assistant Redesign ---
+    st.markdown("""
+    <style>
+    .ai-header {
+        background: linear-gradient(135deg, #4f8cff 0%, #6edfff 100%);
+        padding: 2rem 1rem 1rem 1rem;
+        border-radius: 18px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 24px rgba(80,140,255,0.12);
+    }
+    .ai-title {
+        color: white;
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        letter-spacing: 1px;
+    }
+    .ai-subtitle {
+        color: #eaf6ff;
+        text-align: center;
+        font-size: 1.15rem;
+        margin-bottom: 0.5rem;
+    }
+    .chat-bubble {
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(80,140,255,0.07);
+        position: relative;
+        animation: fadeIn 0.7s;
+    }
+    .chat-bubble.ai {
+        background: linear-gradient(135deg, #3578e5 0%, #4f8cff 100%);
+        border-left: 6px solid #3578e5;
+        color: #fff;
+    }
+    .chat-bubble.user {
+        background: linear-gradient(135deg, #ffe082 0%, #ffd54f 100%);
+        border-right: 6px solid #ffb300;
+        color: #222;
+    }
+    .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 0.7rem;
+        vertical-align: middle;
+        box-shadow: 0 2px 8px rgba(80,140,255,0.10);
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .sidebar-tip {
+        background: #eaf6ff;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: #4f8cff;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(80,140,255,0.07);
+    }
+    </style>
+    <div class="ai-header">
+        <div class="ai-title">🤖 AI Travel Assistant</div>
+        <div class="ai-subtitle">Your personal travel expert powered by advanced AI</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.sidebar:
+        st.markdown("""
+        <div class="sidebar-tip">
+        <b>💡 Pro Tips:</b><br>
+        • Ask about destinations, budgets, or travel hacks<br>
+        • Try "Show me hidden gems in Japan"<br>
+        • Use the quick actions below for inspiration!
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("---")
+
+    st.markdown("#### ✨ Quick Actions")
+    quick_queries = [
+        "Best solo travel spots for 2025",
+        "Luxury escapes under $3000",
+        "Family-friendly beach destinations",
+        "Adventure trips for foodies"
+    ]
+    quick_cols = st.columns(len(quick_queries))
+    for i, query in enumerate(quick_queries):
+        with quick_cols[i]:
+            if st.button(f"💡 {query}", key=f"quick_{i}", use_container_width=True):
+                with st.spinner(f"🤖 AI is analyzing: '{query}'..."):
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    ai_response = loop.run_until_complete(
+                        call_ai_chat_api(query, [], api_base_url)
+                    )
+                    loop.close()
+                    st.markdown(f"<div class='chat-bubble ai'><img src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png' class='avatar'/> <b>AI:</b> {ai_response}</div>", unsafe_allow_html=True)
+
+    st.markdown("#### �️ Conversation")
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Show chat bubbles for last 5 messages
+    for chat in st.session_state.chat_history[-5:]:
+        st.markdown(f"<div class='chat-bubble user'><img src='https://cdn-icons-png.flaticon.com/512/1946/1946429.png' class='avatar'/> <b>You:</b> {chat['user']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='chat-bubble ai'><img src='https://cdn-icons-png.flaticon.com/512/4712/4712027.png' class='avatar'/> <b>AI:</b> {chat['assistant']}</div>", unsafe_allow_html=True)
+
+    # Chat input
+
+    # Use a clear flag to reset input after send
+    if "clear_chat_input" not in st.session_state:
+        st.session_state.clear_chat_input = False
+
+    chat_input_value = "" if st.session_state.clear_chat_input else st.session_state.get("chat_input_modern", "")
+    user_input = st.text_area(
+        "✍️ Type your travel question:", 
+        value=chat_input_value,
+        placeholder="e.g., 'Find me a beach destination for Christmas under $1200'",
+        height=80,
+        key="chat_input_modern"
+    )
+    if st.session_state.clear_chat_input:
+        st.session_state.clear_chat_input = False
+
+    chat_cols = st.columns([4,1])
+    with chat_cols[0]:
+        if st.button("🚀 Send to AI", type="primary", use_container_width=True):
+            if user_input.strip():
+                with st.spinner("🤖 AI Travel Expert is thinking..."):
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    ai_response = loop.run_until_complete(
+                        call_ai_chat_api(user_input, st.session_state.chat_history[-5:], api_base_url)
+                    )
+                    loop.close()
+                    st.session_state.chat_history.append({
+                        "user": user_input,
+                        "assistant": ai_response
+                    })
+                    st.session_state.clear_chat_input = True  # Set flag to clear input
+                    st.rerun()
+            else:
+                st.warning("Please enter a question for the AI assistant!")
+    with chat_cols[1]:
+        if st.button("🗑️ Clear Chat", use_container_width=True):
+            st.session_state.chat_history = []
             st.rerun()
 
 async def fetch_flights(origin: str, destination: str, months: int, api_url: str) -> Dict[str, Any]:
