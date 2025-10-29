@@ -45,6 +45,8 @@ class GeminiAIService:
             - Estimated costs when relevant
             - Practical tips and insider knowledge
             - Multiple options to suit different preferences
+            
+            Answer in a precise way, do not exceed 100 lines in your response.
             """
             
             enhanced_prompt = f"{travel_context}\n\nUser Query: {prompt}"
@@ -62,7 +64,7 @@ class GeminiAIService:
                     "temperature": 0.7,
                     "topK": 40,
                     "topP": 0.95,
-                    "maxOutputTokens": 1024,
+                    "maxOutputTokens": 2048,
                 }
             }
             
@@ -76,15 +78,23 @@ class GeminiAIService:
                 if response.status_code == 200:
                     result = response.json()
                     if 'candidates' in result and len(result['candidates']) > 0:
-                        return result['candidates'][0]['content']['parts'][0]['text']
-                
-                print(f"⚠️ Gemini API returned no content or unexpected format")
-                return self._get_fallback_response(prompt, context)
-                
+                        candidate = result['candidates'][0]
+                        # Log the full candidate for debugging
+                        print(f"Gemini candidate: {json.dumps(candidate, indent=2)}")
+                        content = candidate.get('content', {})
+                        parts = content.get('parts')
+                        if parts and isinstance(parts, list) and len(parts) > 0 and 'text' in parts[0]:
+                            return parts[0]['text']
+                        else:
+                            print(f"❌ Gemini candidate missing 'parts' or 'text'. Candidate: {json.dumps(candidate, indent=2)}")
+                            return "Sorry, the AI could not generate a response. Please try rephrasing or add more details."
+                else:
+                    print(f"⚠️ Gemini API returned status {response.status_code}: {response.text}")
+                    return "Sorry, the AI service is temporarily unavailable."
         except Exception as e:
             print(f"❌ Gemini AI error: {e}")
-            print(f"📝 Falling back to curated response for: {prompt[:50]}...")
-            return self._get_fallback_response(prompt, context)
+            print(f"📝 Gemini prompt: {prompt[:50]}...")
+            return "Sorry, an error occurred while generating your travel response. Please try again later."
     
     async def generate_destination_recommendations(self, budget: int, preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate intelligent destination recommendations using AI"""
@@ -130,22 +140,25 @@ class GeminiAIService:
         
         try:
             response = await self.generate_travel_response(prompt, preferences)
-            
             # Try to extract JSON from response
             if "destinations" in response:
-                # Find JSON in response
                 start = response.find('{')
                 end = response.rfind('}') + 1
                 if start != -1 and end != 0:
                     json_str = response[start:end]
-                    data = json.loads(json_str)
-                    return data.get('destinations', [])
-            
-            # Fallback to mock data if JSON parsing fails
+                    try:
+                        data = json.loads(json_str)
+                        destinations = data.get('destinations', [])
+                        if destinations:
+                            return destinations
+                    except Exception as parse_err:
+                        print(f"Error parsing Gemini destinations JSON: {parse_err}")
+            # Fallback: return mock destinations if Gemini response is empty or invalid
+            print("No valid Gemini destinations found, returning mock data.")
             return self._get_mock_destinations(budget, preferences)
-            
         except Exception as e:
             print(f"Error generating destinations: {e}")
+            print("Returning mock destinations due to error.")
             return self._get_mock_destinations(budget, preferences)
     
     async def chat_with_ai(self, user_message: str, conversation_history: List[Dict] = None) -> str:
@@ -174,155 +187,20 @@ class GeminiAIService:
         return await self.generate_travel_response(prompt, context)
     
     def _get_fallback_response(self, prompt: str, context: Dict[str, Any] = None) -> str:
-        """Fallback responses when Gemini API is not available"""
-        
-        # Analyze prompt keywords for better responses
-        prompt_lower = prompt.lower()
-        
-        if any(word in prompt_lower for word in ['america', 'usa', 'united states', 'american']):
-            return """🇺🇸 **Amazing America tour options:**
-
-**East Coast Classic** - $2,200-2,800 total
-• New York → Washington DC → Boston (7-10 days)
-• Iconic landmarks: Statue of Liberty, White House, Freedom Trail
-• Best time: April-June, September-November
-
-**West Coast Adventure** - $2,500-3,200 total  
-• Los Angeles → San Francisco → Las Vegas (8-12 days)
-• Hollywood, Golden Gate Bridge, Grand Canyon tours
-• Perfect weather: March-May, September-October
-
-**National Parks Circuit** - $1,800-2,400 total
-• Yellowstone → Grand Canyon → Zion (10-14 days)
-• Epic landscapes and outdoor adventures
-• Ideal season: May-September
-
-**Southern Charm** - $1,600-2,200 total
-• New Orleans → Nashville → Charleston (7-10 days)
-• Music, food culture, and historic architecture
-• Great year-round, avoid summer humidity
-
-💡 **Pro tips for America:**
-• Book domestic flights 6-8 weeks ahead
-• Consider rental car for flexibility
-• Many attractions offer city passes for savings
-• Tipping 18-20% is standard at restaurants"""
-
-        elif any(word in prompt_lower for word in ['romantic', 'couple', 'honeymoon']):
-            return """🌹 **Perfect romantic destinations for you:**
-
-**Santorini, Greece** - $950 total
-• Stunning sunsets and white-washed architecture
-• Perfect for couples with amazing cuisine
-• Best time: April-October
-
-**Prague, Czech Republic** - $780 total  
-• Fairy-tale medieval charm with riverside walks
-• Excellent value with world-class beer culture
-• Castle views and romantic boat trips
-
-**Lisbon, Portugal** - $820 total
-• Coastal charm with tram rides and fado music
-• Amazing seafood and historic neighborhoods
-• Affordable luxury with great weather
-
-💡 **Pro tip**: Book 6-8 weeks in advance for best romantic accommodation deals!"""
-
-        elif any(word in prompt_lower for word in ['northern lights', 'aurora', 'iceland']):
-            return """🌌 **Amazing Northern Lights destinations:**
-
-**Reykjavik, Iceland** - $1,100 total
-• 85% visibility chance in March
-• Add Blue Lagoon and Golden Circle tours  
-• Direct flights from most major cities
-
-**Tromsø, Norway** - $1,300 total
-• 90% aurora visibility - best in the world
-• Husky sledding and Sami culture experiences
-• Peak season: September-March
-
-**Lapland, Finland** - $1,200 total
-• Glass igloo hotels for aurora viewing
-• Reindeer farms and snow activities
-• Less crowded than Iceland
-
-🔥 **Insider tip**: Download aurora forecast apps and stay 4+ nights for best chances!"""
-
-        elif any(word in prompt_lower for word in ['adventure', 'southeast asia', 'backpacking']):
-            return """🏝️ **Epic Southeast Asia adventures:**
-
-**Thailand Circuit** - $1,400 (7 days)
-• Bangkok → Chiang Mai → Phuket
-• Street food, temples, and beaches
-• Budget: $60-80/day
-
-**Vietnam Explorer** - $1,350 (7 days) 
-• Ho Chi Minh → Hanoi → Ha Long Bay
-• Incredible food scene and history
-• Budget: $50-70/day
-
-**Indonesia Island Hopping** - $1,450 (6 days)
-• Bali → Lombok → Gili Islands  
-• Surfing, diving, and volcano hikes
-• Budget: $70-90/day
-
-⚡ **Pro tip**: Get travel insurance and book internal flights locally for better deals!"""
-
-        elif any(word in prompt_lower for word in ['food', 'street food', 'cuisine']):
-            return """🍜 **World's best street food destinations:**
-
-**Bangkok, Thailand** - $650 total
-• Pad Thai capital with endless street markets
-• Chatuchak Weekend Market - food paradise
-• $2-5 meals that rival fancy restaurants
-
-**Mumbai, India** - $520 total
-• Spice markets and incredible chaats
-• Vada pav, dosa, and curry adventures  
-• $1-3 meals with explosive flavors
-
-**Hanoi, Vietnam** - $580 total
-• Pho and banh mi heaven
-• Morning coffee culture and night markets
-• $2-4 meals with fresh ingredients
-
-🌶️ **Foodie tip**: Follow locals to the busiest stalls - high turnover means freshest ingredients!"""
-
-        else:
-            # Minimal fallback response
-            return "Sorry, I couldn't find a specific recommendation for your query. Please try rephrasing or ask about a destination, budget, or travel style!"
+        """No fallback: always return empty string so only Gemini AI responses are used"""
+        return ""
 
     def _get_mock_destinations(self, budget: int, preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Enhanced mock destinations based on preferences"""
         
         base_destinations = [
+            # Budget (<$800 total)
             {
                 "city": "Prague", "country": "Czech Republic", "estimated_flight_cost": 450,
                 "daily_budget": 70, "climate": "Temperate", "visa_free": True,
                 "safety_score": 92, "highlights": ["Architecture", "History", "Beer Culture"],
                 "why_recommended": "Perfect blend of culture and affordability with stunning medieval architecture",
                 "best_time": "April-October", "insider_tip": "Visit during shoulder season for fewer crowds and better prices"
-            },
-            {
-                "city": "Lisbon", "country": "Portugal", "estimated_flight_cost": 380,
-                "daily_budget": 65, "climate": "Mediterranean", "visa_free": True,
-                "safety_score": 88, "highlights": ["Coastline", "Culture", "Food"],
-                "why_recommended": "Coastal charm with excellent food scene and great value for money",
-                "best_time": "March-May, Sept-Nov", "insider_tip": "Get a Lisboa Card for free public transport and museum access"
-            },
-            {
-                "city": "Bangkok", "country": "Thailand", "estimated_flight_cost": 650,
-                "daily_budget": 45, "climate": "Tropical", "visa_free": True,
-                "safety_score": 85, "highlights": ["Street Food", "Temples", "Culture"],
-                "why_recommended": "Incredible street food and cultural experiences at unbeatable prices",
-                "best_time": "Nov-March", "insider_tip": "Stay near BTS Skytrain stations for easy transportation"
-            },
-            {
-                "city": "Budapest", "country": "Hungary", "estimated_flight_cost": 420,
-                "daily_budget": 60, "climate": "Temperate", "visa_free": True,
-                "safety_score": 90, "highlights": ["Architecture", "Thermal Baths", "History"],
-                "why_recommended": "Stunning architecture and unique thermal bath culture",
-                "best_time": "April-October", "insider_tip": "Visit Széchenyi Baths early morning to avoid crowds"
             },
             {
                 "city": "Krakow", "country": "Poland", "estimated_flight_cost": 400,
@@ -332,11 +210,78 @@ class GeminiAIService:
                 "best_time": "May-September", "insider_tip": "Take a day trip to Auschwitz-Birkenau for historical context"
             },
             {
+                "city": "Budapest", "country": "Hungary", "estimated_flight_cost": 420,
+                "daily_budget": 60, "climate": "Temperate", "visa_free": True,
+                "safety_score": 90, "highlights": ["Architecture", "Thermal Baths", "History"],
+                "why_recommended": "Stunning architecture and unique thermal bath culture",
+                "best_time": "April-October", "insider_tip": "Visit Széchenyi Baths early morning to avoid crowds"
+            },
+            # Mid-range ($800-$1500)
+            {
+                "city": "Lisbon", "country": "Portugal", "estimated_flight_cost": 380,
+                "daily_budget": 65, "climate": "Mediterranean", "visa_free": True,
+                "safety_score": 88, "highlights": ["Coastline", "Culture", "Food"],
+                "why_recommended": "Coastal charm with excellent food scene and great value for money",
+                "best_time": "March-May, Sept-Nov", "insider_tip": "Get a Lisboa Card for free public transport and museum access"
+            },
+            {
                 "city": "Istanbul", "country": "Turkey", "estimated_flight_cost": 420,
                 "daily_budget": 50, "climate": "Mediterranean", "visa_free": False,
                 "safety_score": 75, "highlights": ["History", "Culture", "Food"],
                 "why_recommended": "Bridge between Europe and Asia with incredible history and food",
                 "best_time": "April-May, Sept-Nov", "insider_tip": "Stay in Sultanahmet area to walk to major attractions"
+            },
+            {
+                "city": "Bangkok", "country": "Thailand", "estimated_flight_cost": 650,
+                "daily_budget": 45, "climate": "Tropical", "visa_free": True,
+                "safety_score": 85, "highlights": ["Street Food", "Temples", "Culture"],
+                "why_recommended": "Incredible street food and cultural experiences at unbeatable prices",
+                "best_time": "Nov-March", "insider_tip": "Stay near BTS Skytrain stations for easy transportation"
+            },
+            # Premium ($1500+)
+            {
+                "city": "Tokyo", "country": "Japan", "estimated_flight_cost": 1200,
+                "daily_budget": 110, "climate": "Temperate", "visa_free": True,
+                "safety_score": 95, "highlights": ["Technology", "Culture", "Cuisine"],
+                "why_recommended": "World-class city for tech, food, and culture lovers",
+                "best_time": "March-May, Oct-Nov", "insider_tip": "Get a Suica card for easy transit and try Tsukiji Outer Market for street food"
+            },
+            {
+                "city": "Sydney", "country": "Australia", "estimated_flight_cost": 1400,
+                "daily_budget": 120, "climate": "Temperate", "visa_free": True,
+                "safety_score": 93, "highlights": ["Beaches", "Nature", "City Life"],
+                "why_recommended": "Iconic beaches and vibrant city life with great weather",
+                "best_time": "Sept-Nov, March-May", "insider_tip": "Use Opal card for public transport and visit Bondi Beach early morning"
+            },
+            # Adventure/Exotic
+            {
+                "city": "Cusco", "country": "Peru", "estimated_flight_cost": 900,
+                "daily_budget": 60, "climate": "Mountain", "visa_free": True,
+                "safety_score": 80, "highlights": ["Ruins", "Culture", "Trekking"],
+                "why_recommended": "Gateway to Machu Picchu and rich Andean culture",
+                "best_time": "May-Sept", "insider_tip": "Acclimatize for altitude and try local Peruvian cuisine"
+            },
+            {
+                "city": "Cape Town", "country": "South Africa", "estimated_flight_cost": 1100,
+                "daily_budget": 80, "climate": "Mediterranean", "visa_free": True,
+                "safety_score": 78, "highlights": ["Nature", "Wine", "Adventure"],
+                "why_recommended": "Stunning landscapes, adventure sports, and world-class wine",
+                "best_time": "Oct-April", "insider_tip": "Take the cable car up Table Mountain and visit the V&A Waterfront"
+            },
+            # Family/Relaxation
+            {
+                "city": "Bali", "country": "Indonesia", "estimated_flight_cost": 800,
+                "daily_budget": 50, "climate": "Tropical", "visa_free": True,
+                "safety_score": 82, "highlights": ["Beaches", "Culture", "Wellness"],
+                "why_recommended": "Relaxing beaches, yoga retreats, and vibrant local culture",
+                "best_time": "April-Oct", "insider_tip": "Stay in Ubud for wellness and culture, Seminyak for beaches"
+            },
+            {
+                "city": "Vancouver", "country": "Canada", "estimated_flight_cost": 950,
+                "daily_budget": 100, "climate": "Temperate", "visa_free": True,
+                "safety_score": 94, "highlights": ["Nature", "City Life", "Food"],
+                "why_recommended": "Beautiful city with access to mountains, ocean, and multicultural food",
+                "best_time": "May-Sept", "insider_tip": "Rent a bike and explore Stanley Park, try sushi downtown"
             }
         ]
         

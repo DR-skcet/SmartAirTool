@@ -205,7 +205,12 @@ with st.sidebar:
 st.markdown('<h1 class="main-header">✈️ SmartAir - Next-Gen Travel Intelligence</h1>', unsafe_allow_html=True)
 
 # Revolutionary feature tabs
-tab1, tab2, tab3 = st.tabs(["✈️ Flight Search", "🌍 Anywhere Search", "🤖 AI Travel Assistant"])
+tab_labels = [
+    "✈️ Flight Search",
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🌍 Anywhere Search&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+    "🤖 AI Travel Assistant"
+]
+tab1, tab2, tab3 = st.tabs(tab_labels)
 
 with tab1:
     # Traditional flight search
@@ -226,78 +231,98 @@ with tab1:
                 st.rerun()
 
 with tab2:
-    # Revolutionary Anywhere Search
+    # --- Modern Stylish Anywhere Search ---
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
-        <h2 style="color: white; text-align: center; margin: 0;">🌍 Anywhere Search</h2>
-        <p style="color: white; text-align: center; font-size: 1.1rem; margin: 0.5rem 0 0 0;">
-            Revolutionary AI-powered destination discovery
+    <style>
+    .anywhere-header {
+        background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+        padding: 2.5rem 1rem 2rem 1rem;
+        border-radius: 18px;
+        margin-bottom: 2rem;
+        box-shadow: 0 6px 24px rgba(67,206,162,0.15);
+    }
+    .anywhere-feature {
+        background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(24,90,157,0.08);
+        padding: 1.2rem;
+        margin: 0.5rem;
+        text-align: center;
+        color: #185a9d;
+    }
+    .anywhere-card {
+        border: 2px solid #43cea2;
+        border-radius: 18px;
+        background: #f8f9fa;
+        box-shadow: 0 4px 16px rgba(67,206,162,0.10);
+        padding: 1.5rem;
+        margin: 1.2rem 0;
+    }
+    .anywhere-metric {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #185a9d;
+    }
+    </style>
+    <div class="anywhere-header">
+        <h2 style="color: white; text-align: center; margin: 0; font-size: 2.2rem; letter-spacing: 1px;">🌍 Anywhere Search</h2>
+        <p style="color: #e0f7fa; text-align: center; font-size: 1.2rem; margin: 0.5rem 0 0 0;">
+            Discover your next adventure with AI-powered destination matching
         </p>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("### 💡 What Makes This Revolutionary?")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("""
-        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+
+    st.markdown("""
+    <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="anywhere-feature">
             <h4>🧠 AI-Powered Matching</h4>
-            <p>Our AI analyzes your preferences and finds destinations you'll love</p>
+            <p>Personalized picks based on your travel style</p>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+        <div class="anywhere-feature">
             <h4>💰 Budget Optimization</h4>
-            <p>Maximize your travel experience within any budget</p>
+            <p>Maximize your experience for every dollar</p>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div style="text-align: center; padding: 1rem; border-radius: 10px; background: #f8f9fa;">
+        <div class="anywhere-feature">
             <h4>🌍 Global Discovery</h4>
-            <p>Discover hidden gems you never knew existed</p>
+            <p>Hidden gems and trending destinations</p>
         </div>
-        """, unsafe_allow_html=True)
-    
-    # Anywhere Search Interface
-    st.markdown("### 🎯 Tell Us Your Preferences")
-    
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.5rem; color: #185a9d;">
+        <h3 style="color: #185a9d; margin-bottom: 0.5rem;">🎯 Tell Us Your Preferences</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
     anywhere_col1, anywhere_col2 = st.columns([2, 1])
-    
+
     with anywhere_col1:
         budget = st.slider("💰 Your Total Budget (USD)", 300, 3000, 800, 50)
-        
         pref_col1, pref_col2 = st.columns(2)
         with pref_col1:
-            climate = st.selectbox("🌡️ Preferred Climate", 
-                                 ["Any", "Tropical", "Mediterranean", "Temperate", "Desert"])
+            climate = st.selectbox("🌡️ Preferred Climate", ["Any", "Tropical", "Mediterranean", "Temperate", "Desert"])
             visa_free = st.checkbox("✈️ Visa-free only", True)
-        
         with pref_col2:
             safety_score = st.slider("🛡️ Safety Priority (1-10)", 1, 10, 7)
             cost_living = st.selectbox("💸 Cost Preference", ["Low", "Medium", "High"], 1)
-        
-        interests = st.multiselect("🎨 Your Interests", 
-                                 ["Food", "Culture", "History", "Adventure", "Nature", "Art", 
-                                  "Nightlife", "Beaches", "Architecture"], 
-                                 ["Food", "Culture"])
-    
+        interests = st.multiselect("🎨 Your Interests", ["Food", "Culture", "History", "Adventure", "Nature", "Art", "Nightlife", "Beaches", "Architecture"], ["Food", "Culture"])
+
     with anywhere_col2:
-        st.markdown("#### 🎯 Your Profile")
-        st.info(f"💰 Budget: ${budget:,}")
-        st.info(f"🌡️ Climate: {climate}")
-        st.info(f"🛡️ Safety: {safety_score}/10")
-        st.info(f"✈️ Visa-free: {'Yes' if visa_free else 'Any'}")
-        st.info(f"🎨 {len(interests)} interests selected")
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); border-radius: 12px; box-shadow: 0 2px 8px rgba(24,90,157,0.08); padding: 1.2rem; margin-bottom: 1rem; color: #185a9d;">
+            <h4 style="color: #185a9d; margin-bottom: 0.7rem;">🎯 Your Profile</h4>
+            <p style="margin: 0.3rem 0;"><strong>💰 Budget:</strong> ${budget:,}</p>
+            <p style="margin: 0.3rem 0;"><strong>🌡️ Climate:</strong> {climate}</p>
+            <p style="margin: 0.3rem 0;"><strong>🛡️ Safety:</strong> {safety_score}/10</p>
+            <p style="margin: 0.3rem 0;"><strong>✈️ Visa-free:</strong> {'Yes' if visa_free else 'Any'}</p>
+            <p style="margin: 0.3rem 0;"><strong>🎨 Interests:</strong> {', '.join(interests) if interests else 'None selected'}</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     if st.button("🔍 Discover Amazing Destinations", type="primary", use_container_width=True):
         with st.spinner("🤖 AI is analyzing global destinations..."):
             try:
-                # Prepare preferences for AI
                 preferences = {
                     "climate": climate if climate != "Any" else None,
                     "visa_free": visa_free,
@@ -305,20 +330,15 @@ with tab2:
                     "cost_preference": cost_living,
                     "interests": interests
                 }
-                
-                # Call real AI backend
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 ai_result = loop.run_until_complete(
                     call_anywhere_search_api(budget, preferences, api_base_url)
                 )
                 loop.close()
-                
+                destinations = []
                 if ai_result and ai_result.get("destinations"):
                     destinations_data = ai_result["destinations"]
-                    
-                    # Convert to expected format
-                    destinations = []
                     for dest in destinations_data:
                         destinations.append({
                             "city": dest.get("city", "Unknown"),
@@ -331,81 +351,60 @@ with tab2:
                             "best_time": dest.get("best_time", "Year-round")
                         })
                 else:
-                    # Fallback destinations if AI fails
-                    destinations = [
-                        {"city": "Prague", "country": "Czech Republic", "cost": 650, "match": 92, 
-                         "highlights": ["Architecture", "History", "Culture"],
-                         "why_recommended": "Perfect blend of culture and affordability",
-                         "insider_tip": "Visit during shoulder season for better prices",
-                         "best_time": "April-October"},
-                        {"city": "Lisbon", "country": "Portugal", "cost": 580, "match": 88, 
-                         "highlights": ["Food", "Culture", "Coastline"],
-                         "why_recommended": "Coastal charm with excellent value",
-                         "insider_tip": "Get Lisboa Card for free transport",
-                         "best_time": "March-May, Sept-Nov"},
-                    ]
-                    st.warning("🤖 AI service temporarily unavailable - showing curated recommendations")
-                
+                    st.warning("No destinations found. Please adjust your criteria or try again.")
+                    st.expander("Show raw AI response for debugging").markdown(f"```json\n{json.dumps(ai_result, indent=2) if ai_result else 'No response'}\n```")
             except Exception as e:
                 st.error(f"Error getting AI recommendations: {e}")
                 destinations = []
-            
             st.success(f"✨ Found {len(destinations)} perfect matches!")
             
-            # Results metrics
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("💰 Best Deal", f"${min(d['cost'] for d in destinations)}")
-            with col2:
-                st.metric("🎯 Top Match", f"{max(d['match'] for d in destinations)}%")
-            with col3:
-                st.metric("💵 Avg Savings", "$200")
-            with col4:
-                st.metric("🌍 Countries", f"{len(set(d['country'] for d in destinations))}")
-            
-            # Display AI-enhanced results
-            for i, dest in enumerate(destinations):
-                col1, col2 = st.columns([4, 1])
-                
-                with col1:
-                    st.markdown(f"""
-                    <div style="border: 2px solid #28a745; border-radius: 15px; padding: 1.5rem; margin: 1rem 0; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                        <h4 style="color: black;">{i+1}. {dest['city']}, {dest['country']}</h4>
-                        
-                        <div style="display: flex; justify-content: space-between; margin: 1rem 0;">
-                            <div>
-                                <span style="background: #28a745; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem;">
-                                    🎯 {dest['match']}% AI Match
-                                </span>
-                                <span style="background: #007bff; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; margin-left: 0.5rem; font-size: 0.9rem;">
-                                    💰 ${dest['cost']} Total
-                                </span>
-                                <span style="background: #6f42c1; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; margin-left: 0.5rem; font-size: 0.9rem;">
-                                    📅 {dest.get('best_time', 'Year-round')}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin: 1rem 0; padding: 0.8rem; background: #f8f9fa; border-radius: 8px;">
-                            <p style="color: #495057; margin: 0; font-weight: 500;">
-                                <strong>🎨 Highlights:</strong> {' • '.join(dest['highlights'])}
-                            </p>
-                        </div>
-                        
-                        {f'''<div style="margin: 1rem 0; padding: 0.8rem; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #28a745;">
-                            <p style="color: #155724; margin: 0; font-style: italic;">
-                                <strong>🤖 AI Insight:</strong> {dest.get('why_recommended', 'Great choice for your preferences!')}
-                            </p>
-                        </div>''' if dest.get('why_recommended') else ''}
-                        
-                        {f'''<div style="margin: 1rem 0; padding: 0.8rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-                            <p style="color: #856404; margin: 0;">
-                                <strong>💡 Insider Tip:</strong> {dest.get('insider_tip', 'Book 4-6 weeks in advance for best prices!')}
-                            </p>
-                        </div>''' if dest.get('insider_tip') else ''}
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+            if destinations:
+                # Modern metrics row
+                metric_cols = st.columns(4)
+                metric_cols[0].markdown(f'<div class="anywhere-metric">💰 <b>Best Deal:</b> ${min([d["cost"] for d in destinations])}</div>', unsafe_allow_html=True)
+                metric_cols[1].markdown(f'<div class="anywhere-metric">🎯 <b>Top Match:</b> {max([d["match"] for d in destinations])}%</div>', unsafe_allow_html=True)
+                metric_cols[2].markdown(f'<div class="anywhere-metric">💵 <b>Avg Savings:</b> $200</div>', unsafe_allow_html=True)
+                metric_cols[3].markdown(f'<div class="anywhere-metric">🌍 <b>Countries:</b> {len(set([d["country"] for d in destinations]))}</div>', unsafe_allow_html=True)
+
+                # Stylish destination cards
+                for i, dest in enumerate(destinations):
+                    card_cols = st.columns([4, 1])
+                    with card_cols[0]:
+                        card_html = f'<div class="anywhere-card">'
+                        card_html += f'<h4 style="color: #185a9d;">{i+1}. {dest["city"]}, {dest["country"]}</h4>'
+                        card_html += f'<div style="display: flex; gap: 0.7rem; margin: 1rem 0; flex-wrap: wrap;">'
+                        card_html += f'<span style="background: #43cea2; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.95rem;">🎯 {dest["match"]}% Match</span>'
+                        card_html += f'<span style="background: #185a9d; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.95rem;">💰 ${dest["cost"]} Total</span>'
+                        card_html += f'<span style="background: #764ba2; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.95rem;">📅 {dest.get("best_time", "Year-round")}</span>'
+                        card_html += '</div>'
+                        card_html += f'<div style="margin: 1rem 0; padding: 0.8rem; background: #e3f2fd; border-radius: 8px;"><p style="color: #185a9d; margin: 0; font-weight: 500;"><strong>🎨 Highlights:</strong> {' • '.join(dest['highlights'])}</p></div>'
+                        if dest.get('why_recommended'):
+                            card_html += f'<div style="margin: 1rem 0; padding: 0.8rem; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #43cea2;"><p style="color: #155724; margin: 0; font-style: italic;"><strong>🤖 AI Insight:</strong> {dest.get("why_recommended", "Great choice for your preferences!")}</p></div>'
+                        if dest.get('insider_tip'):
+                            card_html += f'<div style="margin: 1rem 0; padding: 0.8rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;"><p style="color: #856404; margin: 0;"><strong>💡 Insider Tip:</strong> {dest.get("insider_tip", "Book 4-6 weeks in advance for best prices!")}</p></div>'
+                        card_html += '</div>'
+                        st.markdown(card_html, unsafe_allow_html=True)
+                    with card_cols[1]:
+                        if st.button(f"✈️ Book {dest['city']}", key=f"book_{i}_card", use_container_width=True):
+                            st.success(f"🎉 Redirecting to book {dest['city']}...")
+                        if st.button(f"ℹ️ More Info", key=f"info_{i}_card", use_container_width=True):
+                            with st.expander(f"📖 {dest['city']} Details", expanded=True):
+                                details_md = f"""
+                                **🌍 Destination:** {dest['city']}, {dest['country']}
+                                **💰 Estimated Cost:** ${dest['cost']}
+                                **🎯 Match Score:** {dest['match']}%
+                                **📅 Best Time:** {dest.get('best_time', 'Year-round')}
+                                **🎨 Main Attractions:** {', '.join(dest['highlights'])}
+                                """
+                                if dest.get('why_recommended'):
+                                    details_md += f"\n**🤖 Why AI Recommends:** {dest.get('why_recommended', 'Perfect for your travel style!')}"
+                                if dest.get('insider_tip'):
+                                    details_md += f"\n**💡 Pro Tip:** {dest.get('insider_tip', 'Book early for best deals!')}"
+                                st.markdown(details_md)
+                    # End of card_html block
+                    # All HTML is handled inside card_html string above
+                    # Remove stray HTML lines outside Python strings
+                    # Continue with col2 block
                 with col2:
                     if st.button(f"✈️ Book {dest['city']}", key=f"book_{i}", use_container_width=True):
                         st.success(f"🎉 Redirecting to book {dest['city']}...")
@@ -571,6 +570,15 @@ with tab3:
                         "assistant": ai_response
                     })
                     st.session_state.clear_chat_input = True  # Set flag to clear input
+                    # Show full AI response in scrollable text area
+                    st.text_area(
+                        "AI Response",
+                        value=ai_response,
+                        height=400,
+                        max_chars=None,
+                        key="ai_response_display",
+                        disabled=True
+                    )
                     st.rerun()
             else:
                 st.warning("Please enter a question for the AI assistant!")
